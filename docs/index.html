@@ -1,0 +1,446 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Увеличительное стекло — лупа для Android</title>
+<meta name="description" content="Лупа на камере телефона для слабовидящих: масштаб одним пальцем, контрастные фильтры, крупные кнопки. Бесплатно, без рекламы и без сбора данных.">
+<meta property="og:title" content="Увеличительное стекло — лупа для Android">
+<meta property="og:description" content="Масштаб одним пальцем, контрастные фильтры, крупные кнопки. Бесплатно, без рекламы.">
+<meta property="og:image" content="icon.png">
+<link rel="icon" href="favicon.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root {
+  --bg: #ffffff;
+  --fg: #111111;
+  --muted: #4a4a4a;
+  --card: #f3f3f1;
+  --line: #d9d9d4;
+  --red: #c40000;
+  --yellow: #ffd600;
+  --blue: #1565c0;
+  --btn-fg: #ffffff;
+  --focus: #1565c0;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e0e0e;
+    --fg: #f5f5f5;
+    --muted: #c4c4c4;
+    --card: #1b1b1b;
+    --line: #333333;
+    --red: #ff5252;
+    --blue: #64b5f6;
+    --btn-fg: #111111;
+    --focus: #ffd600;
+  }
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 20px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif;
+}
+a { color: var(--blue); text-underline-offset: 3px; }
+:focus-visible { outline: 4px solid var(--focus); outline-offset: 3px; }
+.wrap { max-width: 1040px; margin: 0 auto; padding: 0 20px; }
+
+/* Header */
+header { border-bottom: 1px solid var(--line); }
+header .wrap { display: flex; align-items: center; gap: 14px; min-height: 72px; }
+header img { width: 44px; height: 44px; border-radius: 10px; }
+header .name { font-weight: 800; font-size: 21px; flex: 1; }
+.lang { display: flex; border: 2px solid var(--fg); border-radius: 999px; overflow: hidden; }
+.lang button {
+  font: inherit; font-size: 16px; font-weight: 700; padding: 6px 14px; border: 0; cursor: pointer;
+  background: transparent; color: var(--fg);
+}
+.lang button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+
+/* Checker strip echoing the icon */
+.checks {
+  height: 28px;
+  background: repeating-conic-gradient(#000 0 25%, #fff 0 50%) 0 0 / 28px 28px;
+  border-top: 2px solid #000; border-bottom: 2px solid #000;
+}
+
+/* Hero */
+.hero { padding: 56px 0 48px; }
+.hero .wrap { display: grid; grid-template-columns: 1.3fr 1fr; gap: 40px; align-items: center; }
+h1 { font-size: clamp(40px, 7vw, 68px); line-height: 1.05; margin: 0 0 18px; letter-spacing: -0.02em; font-weight: 900; }
+.lead { font-size: clamp(21px, 2.6vw, 25px); color: var(--muted); margin: 0 0 30px; max-width: 32ch; }
+.cta { display: flex; flex-wrap: wrap; gap: 14px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 10px; min-height: 60px; padding: 0 26px;
+  border-radius: 14px; font-weight: 800; font-size: 20px; text-decoration: none;
+  border: 3px solid var(--fg);
+}
+.btn.primary { background: var(--red); border-color: var(--red); color: #fff; }
+.btn.secondary { color: var(--fg); }
+.btn svg { width: 24px; height: 24px; flex: none; }
+.note { margin: 18px 0 0; font-size: 17px; color: var(--muted); }
+.stores { margin: 26px 0 0; display: flex; flex-wrap: wrap; gap: 10px; }
+.chip { font-size: 16px; padding: 6px 14px; border-radius: 999px; border: 2px dashed var(--line); color: var(--muted); }
+.chip b { color: var(--fg); }
+.hero-icon { justify-self: center; width: min(340px, 80%); height: auto; aspect-ratio: 1; border-radius: 22%; box-shadow: 0 20px 50px rgba(0,0,0,.25); }
+
+section { padding: 56px 0; }
+h2 { font-size: clamp(30px, 4.5vw, 42px); line-height: 1.15; margin: 0 0 12px; font-weight: 900; letter-spacing: -0.01em; }
+.sub { color: var(--muted); margin: 0 0 32px; max-width: 46ch; }
+
+/* Demo */
+.demo { background: var(--card); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.demo-grid { display: grid; grid-template-columns: 1fr 340px; gap: 32px; align-items: start; }
+.viewer {
+  position: relative; border-radius: 22px; overflow: hidden; border: 10px solid #111;
+  box-shadow: 0 16px 40px rgba(0,0,0,.25); background: #111;
+}
+.paper {
+  /* uneven light, greyish ink: what a phone camera actually sees on a label */
+  background: radial-gradient(120% 90% at 20% 15%, #efebe0 0%, #d6d1c3 55%, #a8a396 100%);
+  color: #3b3934; padding: 26px 26px 30px; filter: url(#fx);
+  font-family: Georgia, "Times New Roman", serif;
+}
+.paper h3 { font-size: 34px; margin: 0 0 8px; font-weight: 700; }
+.paper p { margin: 0 0 10px; font-size: 22px; line-height: 1.4; }
+.paper .small { font-size: 17px; color: #5d5a52; }
+.zoom-badge {
+  position: absolute; top: 12px; right: 14px; font: 800 30px/1 system-ui, sans-serif; color: #fff;
+  text-shadow: 0 0 6px #000, 0 0 2px #000;
+}
+.controls { display: grid; gap: 20px; }
+.fx-btn {
+  display: flex; align-items: center; gap: 16px; width: 100%; padding: 14px 18px; cursor: pointer;
+  background: var(--bg); color: var(--fg); border: 3px solid var(--fg); border-radius: 16px;
+  font: inherit; font-weight: 800; text-align: left;
+}
+.fx-glyph {
+  flex: none; width: 56px; height: 56px; border-radius: 50%; border: 3px solid currentColor;
+  display: grid; place-items: center; font: 900 24px/1 system-ui, sans-serif;
+  background: #fff; color: #000;
+}
+.fx-btn small { display: block; font-weight: 600; color: var(--muted); font-size: 16px; }
+.slider label { display: flex; justify-content: space-between; font-weight: 700; margin-bottom: 6px; }
+.slider input { width: 100%; height: 36px; accent-color: var(--red); }
+.slider[hidden] { display: none; }
+.hint { font-size: 16px; color: var(--muted); margin: 0; }
+
+/* Features */
+.features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.feature { border: 2px solid var(--line); border-radius: 18px; padding: 22px; }
+.feature .ico {
+  width: 52px; height: 52px; border-radius: 50%; display: grid; place-items: center; margin-bottom: 12px; color: #fff;
+}
+.feature .ico svg { width: 28px; height: 28px; }
+.feature h3 { margin: 0 0 6px; font-size: 22px; }
+.feature p { margin: 0; color: var(--muted); font-size: 18px; }
+
+/* Privacy */
+.privacy { border-top: 1px solid var(--line); }
+.privacy ul { margin: 0 0 18px; padding-left: 1.2em; max-width: 60ch; }
+.privacy li { margin: 6px 0; }
+
+footer { border-top: 1px solid var(--line); padding: 28px 0 40px; color: var(--muted); font-size: 17px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 10px 26px; justify-content: space-between; }
+
+@media (max-width: 860px) {
+  .hero .wrap, .demo-grid { grid-template-columns: 1fr; }
+  .hero-icon { order: -1; width: 160px; box-shadow: 0 10px 26px rgba(0,0,0,.2); }
+  .features { grid-template-columns: 1fr 1fr; }
+}
+@media (max-width: 560px) {
+  body { font-size: 19px; }
+  .wrap { padding: 0 16px; }
+  .features { grid-template-columns: 1fr; }
+  .btn { width: 100%; justify-content: center; }
+  .paper { padding: 18px; }
+  .paper h3 { font-size: 27px; }
+  .paper p { font-size: 19px; }
+  header .name { font-size: 18px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .paper { transition: filter .15s; }
+}
+</style>
+</head>
+<body>
+
+<!-- Colour matrix used by the demo; filled in by the script with the app's own formulas. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="fx" color-interpolation-filters="sRGB">
+    <feColorMatrix id="fxm" type="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 1 0"/>
+  </filter>
+</svg>
+
+<header>
+  <div class="wrap">
+    <img src="icon-192.png" alt="">
+    <span class="name" data-i18n="name">Увеличительное стекло</span>
+    <div class="lang" role="group" aria-label="Язык / Language">
+      <button type="button" data-lang="ru" aria-pressed="true">RU</button>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="wrap">
+      <div>
+        <h1 data-i18n="h1">Мелкий текст&nbsp;— крупно</h1>
+        <p class="lead" data-i18n="lead">Лупа на камере телефона для людей со слабым зрением. Масштаб одним пальцем, контрастные фильтры и крупные кнопки.</p>
+        <div class="cta">
+          <a class="btn primary" data-link="apk" href="#">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12M6 10l6 6 6-6M4 21h16"/></svg>
+            <span data-i18n="download">Скачать APK</span>
+          </a>
+          
+        </div>
+        <p class="note" data-i18n="note">Android 7 и новее · бесплатно · без рекламы · без интернета</p>
+        <div class="stores">
+          <span class="chip"><b>RuStore</b> — <span data-i18n="soon">скоро</span></span>
+         
+        </div>
+      </div>
+      <img class="hero-icon" src="icon.png" alt="" width="512" height="512">
+    </div>
+  </div>
+
+  <div class="checks" aria-hidden="true"></div>
+
+  <section class="demo" aria-labelledby="demo-title">
+    <div class="wrap">
+      <h2 id="demo-title" data-i18n="demoTitle">Попробуйте фильтры</h2>
+      <p class="sub" data-i18n="demoSub">Так выглядит этикетка в приложении. Нажимайте кнопку «Aa» — фильтры переключаются по кругу, как в приложении.</p>
+      <div class="demo-grid">
+        <div class="viewer">
+          <div class="paper" id="paper" lang="ru">
+            <h3>Капли глазные</h3>
+            <p>Закапывать по 1–2 капли в каждый глаз 3 раза в день.</p>
+            <p>После вскрытия флакона использовать в течение 28 дней.</p>
+            <p class="small">Хранить при температуре не выше 25 °C в недоступном для детей месте.</p>
+          </div>
+          <div class="zoom-badge" aria-hidden="true">4.0×</div>
+        </div>
+        <div class="controls">
+          <button class="fx-btn" id="fxBtn" type="button" aria-describedby="fxName">
+            <span class="fx-glyph" aria-hidden="true">Aa</span>
+            <span><span data-i18n="filter">Фильтр</span><small id="fxName" aria-live="polite">Без фильтра</small></span>
+          </button>
+          <div class="slider" id="thrBox" hidden>
+            <label for="thr"><span data-i18n="threshold">Порог</span><span id="thrVal">60%</span></label>
+            <input id="thr" type="range" min="10" max="90" value="60" step="1">
+            <p class="hint" data-i18n="thrHint">Двигайте порог, пока буквы не станут чёткими: на тёмной странице — влево, на бледной — вправо.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="feat-title">
+    <div class="wrap">
+      <h2 id="feat-title" data-i18n="featTitle">Возможности</h2>
+      <p class="sub" data-i18n="featSub">Всё нужное — на одной панели крупных кнопок.</p>
+      <div class="features">
+        <div class="feature">
+          <div class="ico" style="background:#c40000"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M7 8l5-5 5 5M7 16l5 5 5-5"/></svg></div>
+          <h3 data-i18n="f1t">Масштаб одним пальцем</h3>
+          <p data-i18n="f1d">Проведите большим пальцем вниз — крупнее, вверх — мельче. Работает и щипок двумя пальцами.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" style="background:#111;border:3px solid var(--fg)"><span style="font:900 20px/1 system-ui;color:#fff">Aa</span></div>
+          <h3 data-i18n="f2t">7 контрастных фильтров</h3>
+          <p data-i18n="f2d">Чёрное на белом, белое на чёрном, жёлтое на чёрном и другие. Ненужные можно отключить.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" style="background:#bf360c"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6l-1 6h3l-7 14v-9H7z"/></svg></div>
+          <h3 data-i18n="f3t">Фонарик и стоп-кадр</h3>
+          <p data-i18n="f3d">Подсветите этикетку, зафиксируйте изображение и рассмотрите его спокойно или отправьте близким.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" style="background:#512da8"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></div>
+          <h3 data-i18n="f4t">Фиксация фокуса</h3>
+          <p data-i18n="f4d">Камера перестаёт «искать» резкость, пока вы читаете вблизи.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" style="background:#00838f"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4L3 8l4 4M3 8h12a5 5 0 010 10h-3"/></svg></div>
+          <h3 data-i18n="f5t">Для левой руки</h3>
+          <p data-i18n="f5d">Панель кнопок зеркально переставляется для тех, кто держит телефон левой рукой.</p>
+        </div>
+        <div class="feature">
+          <div class="ico" style="background:#6d4c41"><svg viewBox="0 0 24 24" fill="#fff"><circle cx="7" cy="12" r="4"/><circle cx="17" cy="7" r="3.2"/><circle cx="17" cy="17" r="3.2"/></svg></div>
+          <h3 data-i18n="f6t">Цветные кнопки</h3>
+          <p data-i18n="f6d">У каждой кнопки свой цвет — её легко найти, не разглядывая значок.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="privacy" aria-labelledby="priv-title">
+    <div class="wrap">
+      <h2 id="priv-title" data-i18n="privTitle">Ваши данные остаются у вас</h2>
+      <ul>
+        <li data-i18n="p1">Приложение не собирает и не передаёт персональные данные.</li>
+        <li data-i18n="p2">Изображение с камеры обрабатывается только на телефоне.</li>
+        <li data-i18n="p3">Нет доступа к интернету, нет рекламы, аналитики и трекеров.</li>
+      </ul>
+      <a data-link="privacy" href="#" data-i18n="privLink">Политика конфиденциальности</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+   
+  </div>
+</footer>
+
+<script>
+// ---- Links: derived from the GitHub Pages address (USER.github.io/REPO/) ----
+// Set REPO explicitly if the page is served from somewhere else.
+var REPO = "";
+(function () {
+  if (!REPO) {
+    var m = location.hostname.match(/^([^.]+)\.github\.io$/);
+    var seg = location.pathname.split("/").filter(Boolean)[0];
+    REPO = m ? "https://github.com/" + m[1] + "/" + (seg && seg.indexOf(".") < 0 ? seg : m[1] + ".github.io")
+             : "https://github.com/";
+  }
+  var links = {
+    repo: REPO,
+    apk: REPO + "/releases/latest",
+    privacy: REPO + "/blob/HEAD/PRIVACY.md"
+  };
+  document.querySelectorAll("[data-link]").forEach(function (a) { a.href = links[a.dataset.link]; });
+})();
+
+// ---- Filters: same colour matrices as the app (ui/Effects.kt) ----
+var K = 12, WR = 0.2126, WG = 0.7152, WB = 0.0722;
+var BLACK = [0, 0, 0], WHITE = [255, 255, 255], YELLOW = [255, 255, 0], BLUE = [0, 0, 255];
+var EFFECTS = [
+  { id: "none" },
+  { id: "bw", pair: [BLACK, WHITE] },
+  { id: "wb", pair: [WHITE, BLACK] },
+  { id: "yb", pair: [YELLOW, BLACK] },
+  { id: "by", pair: [BLACK, YELLOW] },
+  { id: "yblue", pair: [YELLOW, BLUE] },
+  { id: "contrast" },
+  { id: "negative" }
+];
+function matrix(e, threshold) {
+  // Android ColorMatrix works on 0..255, SVG on 0..1: same coefficients, offsets / 255.
+  if (e.pair) {
+    var t = threshold * 255, rows = [];
+    for (var c = 0; c < 3; c++) {
+      var ink = e.pair[0][c], paper = e.pair[1][c], d = paper - ink, s = d * K / 255;
+      rows.push([s * WR, s * WG, s * WB, 0, (ink + d * (0.5 - K * t / 255)) / 255]);
+    }
+    rows.push([0, 0, 0, 1, 0]);
+    return rows;
+  }
+  if (e.id === "contrast") {
+    var k = 2.5, o = 128 * (1 - k) / 255;
+    return [[k, 0, 0, 0, o], [0, k, 0, 0, o], [0, 0, k, 0, o], [0, 0, 0, 1, 0]];
+  }
+  if (e.id === "negative") return [[-1, 0, 0, 0, 1], [0, -1, 0, 0, 1], [0, 0, -1, 0, 1], [0, 0, 0, 1, 0]];
+  return [[1, 0, 0, 0, 0], [0, 1, 0, 0, 0], [0, 0, 1, 0, 0], [0, 0, 0, 1, 0]];
+}
+var GLYPH = { // [background, text] of the "Aa" glyph, showing the current filter
+  none: ["#fff", "#000"], bw: ["#fff", "#000"], wb: ["#000", "#fff"], yb: ["#000", "#ffd600"],
+  by: ["#ffd600", "#000"], yblue: ["#0000ff", "#ffff00"], contrast: ["#ddd", "#000"], negative: ["#000", "#fff"]
+};
+
+// ---- Texts ----
+var T = {
+  ru: {
+    title: "Увеличительное стекло — лупа для Android",
+    name: "Увеличительное стекло", h1: "Мелкий текст\u00a0— крупно",
+    lead: "Лупа на камере телефона для людей со слабым зрением. Масштаб одним пальцем, контрастные фильтры и крупные кнопки.",
+    download: "Скачать APK", 
+    note: "Android 7 и новее · бесплатно · без рекламы · без интернета", soon: "скоро",
+    demoTitle: "Попробуйте фильтры",
+    demoSub: "Так выглядит этикетка в приложении. Нажимайте кнопку «Aa» — фильтры переключаются по кругу, как в приложении.",
+    filter: "Фильтр", threshold: "Порог",
+    thrHint: "Двигайте порог, пока буквы не станут чёткими: на тёмной странице — влево, на бледной — вправо.",
+    featTitle: "Возможности", featSub: "Всё нужное — на одной панели крупных кнопок.",
+    f1t: "Масштаб одним пальцем", f1d: "Проведите большим пальцем вниз — крупнее, вверх — мельче. Работает и щипок двумя пальцами.",
+    f2t: "7 контрастных фильтров", f2d: "Чёрное на белом, белое на чёрном, жёлтое на чёрном и другие. Ненужные можно отключить.",
+    f3t: "Фонарик и стоп-кадр", f3d: "Подсветите этикетку, зафиксируйте изображение и рассмотрите его спокойно или отправьте близким.",
+    f4t: "Фиксация фокуса", f4d: "Камера перестаёт «искать» резкость, пока вы читаете вблизи.",
+    f5t: "Для левой руки", f5d: "Панель кнопок зеркально переставляется для тех, кто держит телефон левой рукой.",
+    f6t: "Цветные кнопки", f6d: "У каждой кнопки свой цвет — её легко найти, не разглядывая значок.",
+    privTitle: "Ваши данные остаются у вас",
+    p1: "Приложение не собирает и не передаёт персональные данные.",
+    p2: "Изображение с камеры обрабатывается только на телефоне.",
+    p3: "Нет доступа к интернету, нет рекламы, аналитики и трекеров.",
+    privLink: "Политика конфиденциальности",
+    fx: { none: "Без фильтра", bw: "Чёрное на белом", wb: "Белое на чёрном", yb: "Жёлтое на чёрном",
+          by: "Чёрное на жёлтом", yblue: "Жёлтое на синем", contrast: "Усиленный контраст", negative: "Негатив" }
+  },
+  en: {
+    title: "Magnifying Glass — a magnifier for Android",
+    name: "Magnifying Glass", h1: "Small print, made big",
+    lead: "A camera magnifier for people with low vision. One-finger zoom, high-contrast filters and large buttons.",
+    download: "Download APK", 
+    note: "Android 7 or newer · free · no ads · no internet", soon: "coming soon",
+    demoTitle: "Try the filters",
+    demoSub: "This is how a label looks in the app. Press the “Aa” button to cycle through the filters, just like in the app.",
+    filter: "Filter", threshold: "Threshold",
+    thrHint: "Move the threshold until the letters are crisp: left for a dark page, right for a faint one.",
+    featTitle: "Features", featSub: "Everything you need on one bar of large buttons.",
+    f1t: "One-finger zoom", f1d: "Drag your thumb down to zoom in, up to zoom out. Pinch zoom works too.",
+    f2t: "7 high-contrast filters", f2d: "Black on white, white on black, yellow on black and more. Turn off the ones you don’t need.",
+    f3t: "Torch and freeze frame", f3d: "Light up a label, freeze the image and read it at ease, or send it to someone.",
+    f4t: "Focus lock", f4d: "The camera stops hunting for focus while you read up close.",
+    f5t: "Left-hand mode", f5d: "The button bar is mirrored for holding the phone in your left hand.",
+    f6t: "Coloured buttons", f6d: "Each button has its own colour, so you can find it without reading the icon.",
+    privTitle: "Your data stays with you",
+    p1: "The app does not collect or send any personal data.",
+    p2: "The camera image is processed on the phone only.",
+    p3: "No internet access, no ads, no analytics, no trackers.",
+    privLink: "Privacy policy",
+    fx: { none: "No filter", bw: "Black on White", wb: "White on Black", yb: "Yellow on Black",
+          by: "Black on Yellow", yblue: "Yellow on Blue", contrast: "Enhanced Contrast", negative: "Negative" }
+  }
+};
+
+var lang = "ru", fxIndex = 0, threshold = 0.6;
+var $ = function (id) { return document.getElementById(id); };
+
+function render() {
+  var e = EFFECTS[fxIndex];
+  $("fxm").setAttribute("values", matrix(e, threshold).map(function (r) {
+    return r.map(function (v) { return +v.toFixed(5); }).join(" ");
+  }).join("  "));
+  $("fxName").textContent = T[lang].fx[e.id];
+  var g = document.querySelector(".fx-glyph"), c = GLYPH[e.id];
+  g.style.background = c[0]; g.style.color = c[1];
+  $("thrBox").hidden = !e.pair;
+  $("thrVal").textContent = Math.round(threshold * 100) + "%";
+}
+function setLang(l) {
+  lang = l;
+  document.documentElement.lang = l;
+  document.title = T[l].title;
+  document.querySelectorAll("[data-i18n]").forEach(function (el) { el.textContent = T[l][el.dataset.i18n]; });
+  document.querySelectorAll("[data-lang]").forEach(function (b) {
+    b.setAttribute("aria-pressed", String(b.dataset.lang === l));
+  });
+  try { localStorage.setItem("lang", l); } catch (err) {}
+  render();
+}
+$("fxBtn").addEventListener("click", function () { fxIndex = (fxIndex + 1) % EFFECTS.length; render(); });
+$("thr").addEventListener("input", function (ev) { threshold = ev.target.value / 100; render(); });
+document.querySelectorAll("[data-lang]").forEach(function (b) {
+  b.addEventListener("click", function () { setLang(b.dataset.lang); });
+});
+
+var saved = null;
+try { saved = localStorage.getItem("lang"); } catch (err) {}
+setLang(saved || ((navigator.language || "ru").toLowerCase().indexOf("ru") === 0 ? "ru" : "en"));
+</script>
+</body>
+</html>
